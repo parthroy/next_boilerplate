@@ -1,0 +1,25 @@
+.btnsugar {
+  /* width: 203px; */
+  /* height: 62px;
+  margin-top: 2rem; */
+  border-radius: 50px;
+  background: #ffa8c7 !important;
+  color: #21154C ;
+  padding: 20px 40px;
+  font-weight: 400;
+}
+.btnsugar:focus {
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  border-color: #ffa8c7 !important;
+}
+
+.btnsugar:hover {
+  background: #ffa8c7;
+  color: #21154C;
+}
+.btnsugar .btn.btn-primary {
+  border-color: none !important;
+}
