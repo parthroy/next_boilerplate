@@ -1,12 +1,7 @@
 import client from '../client';
 
 export const login = (params) => {
-  const user = {
-    ...params,
-    'auth-type': 'user',
-  };
-
-  return client.post(`/api/users/login`, user);
+  return client.post(`/api/auth/login`, params);
 };
 
 export const register = (params) => {

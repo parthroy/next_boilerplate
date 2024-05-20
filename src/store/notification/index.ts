@@ -4,11 +4,11 @@ import { toast } from "react-toastify";
 const id = 0;
 
 export const NOTIFICATION_TYPE = {
-  INFO: toast.TYPE.INFO,
-  SUCCESS: toast.TYPE.SUCCESS,
-  WARNING: toast.TYPE.WARNING,
-  ERROR: toast.TYPE.ERROR,
-  DEFAULT: toast.TYPE.DEFAULT,
+  INFO: 'info',
+  SUCCESS: 'success',
+  WARNING: 'warning',
+  ERROR: 'error',
+  DEFAULT: 'default',
 };
 const initialState = {
   duration: 4000,
@@ -17,13 +17,15 @@ const initialState = {
   notificationType: NOTIFICATION_TYPE.ERROR,
   id: id,
 };
-
+export const notify = (message: string, type: keyof typeof NOTIFICATION_TYPE = 'DEFAULT') => {
+  toast[type](message);
+};
 const notificationSlice = createSlice({
   name: "notification",
   initialState: initialState,
   reducers: {
     showErrorNotification: (state, action) => {
-      state.notificationMessage = action.payload.msg;   
+      state.notificationMessage = action.payload.msg;
       state.notificationType = action.payload.NotificationType;
       state.duration = action.payload.duration || 4000;
       state.id++;

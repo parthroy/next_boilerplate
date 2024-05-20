@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
 import * as authAPI from "../../api/auth";
 import { RootState } from '@/store';
+import { NOTIFICATION_TYPE, notify } from "../notification";
 
 const clientAdapter = createEntityAdapter();
 
 interface AuthState {
   isAuth: boolean;
-  token: string;
+  token: string | null;
   role: string;
   status: string;
   email: string;
@@ -35,9 +36,17 @@ const initialState = clientAdapter.getInitialState({
 } as unknown as AuthState);
 
 const getAuthState = (state: RootState) => state.auth;
-const login = createAsyncThunk("auth/login", async (params) => {
-  const res = await authAPI.login(params);
-  return res.data;
+const login = createAsyncThunk("auth/login", async (params, { rejectWithValue }) => {
+  try {
+    console.log(params);
+    const res = await authAPI.login(params);
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    // Add toast notification for error
+    notify('Login failed. Please check your credentials.', NOTIFICATION_TYPE.ERROR);
+    return rejectWithValue(error.response?.data || 'An unknown error occurred');
+  }
 });
 
 const resetPassword = createAsyncThunk(
@@ -93,15 +102,19 @@ const authSlice = createSlice({
   extraReducers: {
     // login
 
-    [login.pending]: (state) => {
+    [login.pending]: (state: { status: string; ui: { login: { loading: boolean; }; }; }) => {
       state.status = "loggingIn";
       state.ui.login.loading = true;
     },
 
-    [login.fulfilled]: (state, action) => {
+    [login.fulfilled]: (state: { status: string; isAuth: boolean; token: any; admin: boolean; ui: { login: { loading: boolean; }; }; }, action: {
+      payload: {
+        [x: string]: any; data: { token: any; }; admin: any;
+      };
+    }) => {
       state.status = "idle";
       state.isAuth = true;
-      state.token = action.payload.data.token;
+      state.token = action.payload.token;
       if (action.payload.admin) {
         state.admin = action.payload.admin;
       } else {
@@ -110,28 +123,28 @@ const authSlice = createSlice({
       state.ui.login.loading = false;
     },
 
-    [login.rejected]: (state, action) => {
+    [login.rejected]: (state: { status: string; error: any; ui: { login: { loading: boolean; }; }; }, action: { error: { message: any; }; }) => {
       state.status = "error";
       state.error = action.error.message;
       state.ui.login.loading = false;
     },
 
     // resetPassword
-    [resetPassword.pending]: (state) => {
+    [resetPassword.pending]: (state: { status: string; ui: { login: { loading: boolean; }; error: string; msg: string; }; }) => {
       state.status = "resetingPassword";
       state.ui.login.loading = true;
       state.ui.error = "";
       state.ui.msg = "";
     },
 
-    [resetPassword.fulfilled]: (state, action) => {
+    [resetPassword.fulfilled]: (state: { status: string; ui: { msg: any; login: { loading: boolean; }; }; }, action: { payload: { msg: any; }; }) => {
       state.status = "idle";
 
       state.ui.msg = action.payload.msg;
       state.ui.login.loading = false;
     },
 
-    [resetPassword.rejected]: (state, action) => {
+    [resetPassword.rejected]: (state: { status: string; ui: { error: any; login: { loading: boolean; }; }; }, action: { error: { message: any; }; }) => {
       state.status = "idle";
       state.ui.error = action.error.message;
       state.ui.login.loading = false;

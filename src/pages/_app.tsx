@@ -1,3 +1,5 @@
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import React, { Suspense } from "react";
 import { Provider as StoreProvider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -6,7 +8,6 @@ import { configureAppStore, persistor, store } from "@/store";
 import "@/styles/globals.css";
 import ErrorBoundary from "@/common/ErrorBoundary";
 import addAuthTokenInterceptor from "@/api/addAuthTokenInterceptor";
-
 addAuthTokenInterceptor(store);
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -21,6 +22,8 @@ function MyApp({ Component, pageProps }: AppProps) {
           </StoreProvider>
         </Suspense>
       </ErrorBoundary>
+      <ToastContainer />
+
     </>
   );
 }

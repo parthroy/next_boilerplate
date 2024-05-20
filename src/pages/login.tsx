@@ -1,4 +1,5 @@
 import * as React from "react";
+import { toast } from 'react-toastify';
 import {
   Avatar,
   Box,
@@ -21,6 +22,9 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import FooterIllustrationsV1 from "@/common/Footer";
 import { EyeOffOutline, EyeOutline } from "mdi-material-ui";
+import { useAuthDispatch, useAuthState } from "@/hooks/useAuthDispatch";
+import { NavigateBefore } from "@mui/icons-material";
+import { useRouter } from "next/router";
 
 interface State {
   password: string;
@@ -28,6 +32,11 @@ interface State {
 }
 
 export default function Login() {
+  const { loginAsync, } = useAuthDispatch();
+  const router = useRouter()
+
+  const { token } = useAuthState();
+
   const [values, setValues] = React.useState<State>({
     password: "",
     showPassword: false,
@@ -48,15 +57,29 @@ export default function Login() {
     event.preventDefault();
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+    const formData = {
       email: data.get("email"),
       password: data.get("password"),
-    });
+    }
+    console.log(formData);
+    if (formData.email && formData.password) {
+
+      try {
+        loginAsync({ email: formData.email, password: formData.password });
+      } catch (error) {
+        toast.error('Login failed. Please check your credentials.');
+      }
+    }
   };
 
+  React.useEffect(() => {
+    if (token) {
+      router.push('/')
+    }
+  }, [token])
   return (
     <React.Fragment>
       <Container component="main" maxWidth="xs">
@@ -121,12 +144,14 @@ export default function Login() {
               id="email"
               label="Email"
               sx={{ marginBottom: 4 }}
+              name="email"
             />
             <FormControl fullWidth>
               <InputLabel htmlFor="auth-login-password">Password</InputLabel>
               <OutlinedInput
                 // required
                 label="Password"
+                name="password"
                 value={values.password}
                 id="auth-login-password"
                 onChange={handleChange("password")}

@@ -2,16 +2,15 @@ import axios from 'axios';
 
 import isLocalStorageAvailable from '@/utils/Storage/isLocalStorageAvailable';
 // client.js api
-const baseURL =
-  process.env.REACT_APP_CHAT_GPT_SERVER || 'http://192.168.29.108:81';
+const baseURL = 'http://127.0.0.1:3000';
 export { baseURL };
 // console.warn("baseURL ==> ", baseURL);
 const client = axios.create({
-  baseURL,
+
 });
 
 client.interceptors.response.use(undefined, (error) => {
-  if (error.response?.status === 406) {
+  if (error.response?.status === 401) {
     if (isLocalStorageAvailable()) {
       localStorage.removeItem('token');
       localStorage.removeItem('expries');
@@ -21,9 +20,7 @@ client.interceptors.response.use(undefined, (error) => {
   }
 
   // if (
-  //   error.response?.status === 404 &&
-  //   error.response?.data?.message ===
-  //     "You are logged out because you logged in with some other device. Please login again."
+  //   error.response?.status === 401 
   // ) {
   //   if (isLocalStorageAvailable()) {
   //     localStorage.removeItem("token");
@@ -34,8 +31,8 @@ client.interceptors.response.use(undefined, (error) => {
   error.message = error.response
     ? error.response.data.message
     : error.request
-    ? error.message
-    : 'Something went wrong. Try again.';
+      ? error.message
+      : 'Something went wrong. Try again.';
   return Promise.reject(error);
 });
 
@@ -57,5 +54,5 @@ client.interceptors.response.use(undefined, (error) => {
 export default client;
 
 export const authClient = axios.create({
-  baseURL: process.env.REACT_APP_SERVER_URL || 'http://192.168.29.108:81',
+  // baseURL: 'http://127.0.0.1:3000',
 });
